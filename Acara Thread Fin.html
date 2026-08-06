@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acara Thread Fin</title>
+  <style>
+    
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a18; }
+  .app { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
+  h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
+
+  .input-section { background: white; border: 0.5px solid #ddd; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+  .input-section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #444; }
+  .step { margin-bottom: 1.5rem; }
+  .step label { display: block; font-size: 0.875rem; font-weight: 600; color: #333; margin-bottom: 0.25rem; }
+  .step .hint { font-size: 0.8rem; color: #999; margin-bottom: 0.5rem; }
+  textarea { width: 100%; border: 0.5px solid #ccc; border-radius: 8px; padding: 0.6rem 0.75rem; font-size: 0.875rem; font-family: inherit; resize: vertical; outline: none; transition: border-color 0.15s; min-height: 120px; }
+  textarea:focus { border-color: #378ADD; }
+
+  .folder-drop { border: 2px dashed #ccc; border-radius: 10px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.15s; background: #fafaf8; position: relative; }
+  .folder-drop:hover { border-color: #1D9E75; background: #f0faf6; }
+  .folder-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .folder-drop .drop-icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
+  .folder-drop .drop-text { font-size: 0.9rem; color: #555; }
+  .folder-drop .drop-sub { font-size: 0.8rem; color: #aaa; margin-top: 0.2rem; }
+
+  .image-status { margin-top: 0.75rem; }
+  .status-summary { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+  .image-pill { display: inline-flex; align-items: center; background: #E1F5EE; color: #085041; border-radius: 20px; padding: 0.2rem 0.65rem; font-size: 0.78rem; margin: 0.2rem; }
+
+  .info-note { background: #E6F1FB; border: 0.5px solid #B5D4F4; border-radius: 8px; padding: 0.75rem 1rem; color: #0C447C; font-size: 0.82rem; margin-top: 0.75rem; }
+  .error { background: #FCEBEB; border: 0.5px solid #F09595; border-radius: 8px; padding: 0.75rem 1rem; color: #A32D2D; font-size: 0.875rem; margin-top: 1rem; }
+
+  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+  button { padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-family: inherit; cursor: pointer; transition: all 0.15s; border: 0.5px solid #ccc; background: white; color: #333; }
+  button:hover { background: #f5f5f0; border-color: #aaa; }
+  button.primary { background: #1a1a18; color: white; border-color: #1a1a18; }
+  button.primary:hover { background: #333; }
+  button.print-btn { background: #0F6E56; color: white; border-color: #0F6E56; }
+  button.print-btn:hover { background: #085041; }
+  button.save-btn { background: #1a4fa0; color: white; border-color: #1a4fa0; }
+  button.save-btn:hover { background: #153d80; }
+  button.save-btn:disabled { background: #7a9fd4; border-color: #7a9fd4; cursor: not-allowed; }
+  button.zip-btn { background: #7B2D8B; color: white; border-color: #7B2D8B; }
+  button.zip-btn:hover { background: #5e1f6e; }
+  button.zip-btn:disabled { background: #b87fc4; border-color: #b87fc4; cursor: not-allowed; }
+
+  /* Output */
+  #card-output { display: none; }
+  .print-bar { display: flex; align-items: center; justify-content: space-between; background: white; border: 0.5px solid #ddd; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
+  .print-bar span { font-size: 0.875rem; color: #666; }
+
+  .save-progress { display: none; background: #E6F1FB; border: 0.5px solid #B5D4F4; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .save-progress-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .progress-bar { height: 6px; background: #c8dff5; border-radius: 3px; margin-top: 0.75rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: #378ADD; border-radius: 3px; width: 0%; transition: width 0.3s; }
+
+  /* ── Mobile Fish Card ── */
+  /* Each card is designed to look like a phone screen: 390px wide */
+  .cards-container { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: flex-start; }
+
+  .fish-card {
+    width: 390px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 0.5px solid #ddd;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .card-header {
+    background: #0099B0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 1.25rem 1rem;
+    color: white;
+    text-align: center;
+  }
+  .card-header h2 { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+  .card-header .sci-name { font-size: 0.8rem; font-style: italic; opacity: 0.85; margin-top: 0.25rem; font-weight: 400; }
+
+  /* Full-width image — natural size, no cropping */
+  .fish-image-container { width: 100%; background: #f0f0eb; }
+  .fish-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .image-footnote {
+    font-size: 0.6rem; color: #999; font-style: italic;
+    text-align: center; padding: 0.3rem 0.5rem;
+    background: #f8f8f5; line-height: 1.3;
+  }
+  .no-image { height: 180px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 0.875rem; }
+
+  /* Info tiles — 2 column grid */
+  .card-body { padding: 0.875rem 0.875rem 0; }
+
+  .tile-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-bottom: 0.4rem; }
+  .tile-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; margin-bottom: 0.4rem; }
+  .tile-grid-1 { display: grid; grid-template-columns: 1fr; gap: 0.4rem; margin-bottom: 0.4rem; }
+
+  .tile { background: #f8f8f5; border-radius: 8px; padding: 0.5rem 0.6rem; }
+  .tile .t-label { font-size: 0.6rem; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.15rem; }
+  .tile .t-value { font-size: 0.82rem; font-weight: 700; color: #1a1a18; line-height: 1.3; word-break: break-word; }
+
+  /* Sections */
+  .card-sections { padding: 0 0.875rem 0.875rem; }
+  .section-divider { height: 0.5px; background: #eee; margin: 0.6rem 0; }
+  .section-block { margin-bottom: 0.5rem; }
+  .section-block .s-title { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #0099B0; margin-bottom: 0.25rem; }
+  .section-block .s-body { font-size: 0.82rem; font-weight: 600; line-height: 1.5; color: #1a1a18; }
+
+  .card-footer {
+    text-align: center; font-size: 0.65rem; font-weight: 700;
+    color: #999; padding: 0.5rem; background: #f8f8f5;
+    border-top: 0.5px solid #eee; letter-spacing: 0.03em;
+  }
+
+  @media print {
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .app { padding: 0; max-width: 100%; }
+    .input-section, .print-bar, .save-progress { display: none !important; }
+    #card-output { display: block !important; }
+    h1, .subtitle { display: none; }
+    .cards-container { display: block; }
+    .fish-card {
+      width: 100%;
+      max-width: 390px;
+      margin: 0 auto;
+      box-shadow: none;
+      border-radius: 0;
+      border: none;
+      page-break-after: always;
+      break-after: page;
+    }
+    .card-header {
+      background: #0099B0 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .fish-image-container img { width: 100%; height: auto; display: block; }
+    @page { margin: 5mm; }
+  }
+
+    body { margin: 0; background: #f5f5f0; display: flex; justify-content: center; padding: 1rem; }
+    .fish-card { width: 390px; max-width: 100%; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .card-header { background: #0099B0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .fish-image-container img { max-height: 300px; object-fit: contain; object-position: center; width: 100%; height: auto; display: block; }
+  </style>
+</head>
+<body>
+<div class="fish-card" data-fishname="Acara Thread Fin">
+      <div class="card-header">
+        <h2>Acara Thread Fin</h2>
+        <div class="sci-name">Acarichthys heckelii</div>
+      </div>
+
+      <div class="fish-image-container">
+        <img src="data:image/jpeg;base64,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" alt="Acara Thread Fin">
+        <div class="image-footnote">Image is for illustrative purposes only and may not represent all individuals of this species.</div>
+       </div>
+
+      <div class="card-body">
+        <div class="tile-grid-2">
+          <div class="tile"><div class="t-label">Temperament</div><div class="t-value">Peaceful</div></div>
+          <div class="tile"><div class="t-label">Grows To</div><div class="t-value">8"</div></div>
+        </div>
+        <div class="tile-grid-2">
+          <div class="tile"><div class="t-label">Starting Tank Size</div><div class="t-value">55 Gallon</div></div>
+          <div class="tile"><div class="t-label">Typical Color</div><div class="t-value">Features a brownish-silver or tan base decorated with iridescent blue, green, and gold gem-like speckles.</div></div>
+        </div>
+      </div>
+
+      <div class="card-sections">
+        <div class="section-divider"></div><div class="section-block"><div class="s-title">CB's Recommended Fish Food</div><div class="s-body">Omnivore<br>Frozen Bloodworms<br>Frozen Brine<br>Hikari Vibra Bites<br>Sera Flakes<br>Hikari Cichlid Pellets</div></div>
+        <div class="section-divider"></div><div class="section-block"><div class="s-title">Care Notes</div><div class="s-body">Mild-mannered large cichlid. May nibble soft plants; use hardy species like Java fern or Anubias. Generally peaceful with similarly sized fish.</div></div>
+      </div>
+
+      <div class="card-body" style="padding-top:0;">
+        <div class="tile-grid-3">
+          <div class="tile"><div class="t-label">Temp Range</div><div class="t-value">77-82°F</div></div>
+          <div class="tile"><div class="t-label">Water PH</div><div class="t-value">6.8-7.4</div></div>
+          <div class="tile"><div class="t-label">Water KH</div><div class="t-value">8-15 dKH</div></div>
+        </div>
+        <div class="tile-grid-1">
+          <div class="tile"><div class="t-label">Origin</div><div class="t-value">South America (Amazon Basin)</div></div>
+        </div>
+        <div class="tile-grid-1">
+          <div class="tile"><div class="t-label">Plant Safety</div><div class="t-value">Caution</div></div>
+        </div>
+      </div>
+
+      <div class="card-footer">©CB's Tropical Aquarium</div>
+    </div>
+</body>
+</html>
